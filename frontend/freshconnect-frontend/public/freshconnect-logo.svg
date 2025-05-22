@@ -1,0 +1,9 @@
+<!--
+  freshconnect-logo.svg
+  Placeholder logo for FreshConnect. Replace this SVG with your final logo.
+  Usage: Navbar/Header (src/components/Header.jsx)
+-->
+<svg width="120" height="40" viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="120" height="40" rx="8" fill="#4CAF50"/>
+  <text x="60" y="25" text-anchor="middle" font-family="Montserrat, Arial, sans-serif" font-size="20" fill="#fff">FreshConnect</text>
+</svg>
