@@ -14,7 +14,7 @@ import {
   CircularProgress
 } from '@mui/material';
 import { useParams, Link } from 'react-router-dom';
-import ProductDetailCard from '../components/ProductDetailCard';
+import ProductDetailCard from '../components/EnhancedProductDetailCard';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
@@ -120,7 +120,11 @@ const ProductPage = () => {
                     {farmer.name}
                   </Typography>
                   {farmer.verified && (
-                    <VerifiedIcon color="primary" sx={{ ml: 1, fontSize: 20 }} />
+                    <VerifiedIcon 
+                      color="primary" 
+                      sx={{ ml: 1, fontSize: 20 }} 
+                      data-testid="verified-icon"
+                    />
                   )}
                 </Box>
                 <Rating value={farmer.rating || 4.5} precision={0.5} readOnly size="small" />

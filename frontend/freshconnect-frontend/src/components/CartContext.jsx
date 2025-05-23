@@ -9,21 +9,21 @@ const initialState = {
 function cartReducer(state, action) {
   switch (action.type) {
     case 'ADD_ITEM': {
-      const { product } = action;
+      const { product, quantity = 1 } = action;
       const existing = state.items.find(i => i.product.id === product.id);
       if (existing) {
         return {
           ...state,
           items: state.items.map(i =>
             i.product.id === product.id
-              ? { ...i, quantity: i.quantity + 1 }
+              ? { ...i, quantity: i.quantity + quantity }
               : i
           ),
         };
       }
       return {
         ...state,
-        items: [...state.items, { product, quantity: 1 }],
+        items: [...state.items, { product, quantity }],
       };
     }
     case 'REMOVE_ITEM': {
@@ -42,7 +42,7 @@ function cartReducer(state, action) {
 
 export function CartProvider({ children }) {
   const [state, dispatch] = useReducer(cartReducer, initialState);
-  const addToCart = product => dispatch({ type: 'ADD_ITEM', product });
+  const addToCart = (product, quantity = 1) => dispatch({ type: 'ADD_ITEM', product, quantity });
   const removeFromCart = productId => dispatch({ type: 'REMOVE_ITEM', productId });
   const clearCart = () => dispatch({ type: 'CLEAR_CART' });
 

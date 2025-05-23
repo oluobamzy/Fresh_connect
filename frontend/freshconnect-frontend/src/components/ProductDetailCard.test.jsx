@@ -70,6 +70,12 @@ describe('ProductDetailCard', () => {
     await waitFor(() => expect(screen.getByText(/Failed to fetch product/)).toBeInTheDocument());
   });
 
+  it('handles network error gracefully', async () => {
+    global.fetch = jest.fn(() => Promise.reject(new Error('Network error')));
+    renderWithProviders(<ProductDetailCard productId="1" />);
+    await waitFor(() => expect(screen.getByText('Network error')).toBeInTheDocument());
+  });
+
   it('calls onAddToCart and shows notification', async () => {
     const onAddToCart = jest.fn();
     renderWithProviders(<ProductDetailCard productId="1" onAddToCart={onAddToCart} />);
@@ -77,5 +83,17 @@ describe('ProductDetailCard', () => {
     fireEvent.click(screen.getByTestId('add-to-cart-btn'));
     expect(onAddToCart).toHaveBeenCalledWith(product);
     expect(screen.getByTestId('notification')).toHaveTextContent('Added to cart!');
+  });
+
+  it('shows out of stock message when quantity is 0', async () => {
+    global.fetch = jest.fn(() =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ ...product, quantityAvailable: 0 }),
+      })
+    );
+    renderWithProviders(<ProductDetailCard productId="1" />);
+    await waitFor(() => expect(screen.getByText('Out of Stock')).toBeInTheDocument());
+    expect(screen.getByTestId('add-to-cart-btn')).toBeDisabled();
   });
 });

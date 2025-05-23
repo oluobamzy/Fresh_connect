@@ -142,4 +142,30 @@ describe('ProductPage', () => {
       expect(screen.getByText(`$${product.price.toFixed(2)}`)).toBeInTheDocument();
     });
   });
+
+  it('links to farmer profile page correctly', async () => {
+    renderWithProviders();
+
+    // Wait for data to load
+    await waitFor(() => {
+      expect(screen.getByText('About the Farmer')).toBeInTheDocument();
+    });
+
+    // Find the View Farmer's Profile button and verify it links to the correct route
+    const farmerProfileLink = screen.getByRole('link', { name: /view farmer's profile/i });
+    expect(farmerProfileLink).toHaveAttribute('href', `/farmers/${mockFarmer.id}`);
+  });
+
+  it('displays farmer verified status', async () => {
+    renderWithProviders();
+
+    await waitFor(() => {
+      expect(screen.getByText('About the Farmer')).toBeInTheDocument();
+    });
+
+    // Find the farmer name and verification icon
+    expect(screen.getByText(mockFarmer.name)).toBeInTheDocument();
+    expect(screen.getByTestId('verified-icon')).toBeInTheDocument();
+  });
+
 });
