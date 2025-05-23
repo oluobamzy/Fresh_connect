@@ -14,6 +14,7 @@ import { useParams, Link } from 'react-router-dom';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import OrderService from '../../services/OrderService';
 
 const OrderConfirmation = () => {
   const { orderId } = useParams();
@@ -25,14 +26,8 @@ const OrderConfirmation = () => {
     const fetchOrderDetails = async () => {
       try {
         setLoading(true);
-        // API call to get order details
-        const response = await fetch(`/api/orders/${orderId}`);
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch order details');
-        }
-        
-        const data = await response.json();
+        // Use OrderService instead of direct fetch
+        const data = await OrderService.getOrderById(orderId);
         setOrder(data);
       } catch (err) {
         console.error('Error fetching order details:', err);

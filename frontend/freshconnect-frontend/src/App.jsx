@@ -3,13 +3,14 @@ import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import { AppBar, Toolbar, Typography, Button, Container, Box, Tabs, Tab, Grid, Card, CardContent } from '@mui/material';
+import { AppBar, Toolbar, Typography, Button, Box, Container, Tabs, Tab, Grid, Card, CardContent } from '@mui/material';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import FarmerRegistrationForm from './components/Onboarding/FarmerRegistrationForm';
 import ConsumerRegistrationForm from './components/Onboarding/ConsumerRegistrationForm';
 import ProductList from './components/ProductList.jsx';
 import OrdersContainer from './components/OrdersContainer';
+import ProfileContainer from './components/ProfileContainer';
 import RecipeSuggestions from './components/Community/RecipeSuggestions';
 import ForumContainer from './components/Community/ForumContainer';
 import CheckoutPage from './components/Checkout/CheckoutPage';
@@ -30,6 +31,7 @@ function App() {
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/orders/*" element={<Orders />} />
             <Route path="/orders/confirmation/:orderId" element={<OrderConfirmation />} />
+            <Route path="/profile/*" element={<Profile />} />
             <Route path="/forum/*" element={<Forum />} />
             <Route path="/recipes" element={<Recipes />} />
             <Route path="/admin" element={<AdminDashboard />} />
@@ -252,6 +254,9 @@ function Onboarding() {
 }
 function Orders() {
   return <OrdersContainer />;
+}
+function Profile() {
+  return <ProfileContainer />;
 }
 function Forum() {
   return <ForumContainer />;

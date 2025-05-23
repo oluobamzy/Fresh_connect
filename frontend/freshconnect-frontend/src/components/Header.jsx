@@ -145,8 +145,8 @@ export default function Header() {
                   horizontal: 'right',
                 }}
               >
-                <MenuItem onClick={handleUserMenuClose}>Profile</MenuItem>
-                <MenuItem onClick={handleUserMenuClose}>My Orders</MenuItem>
+                <MenuItem onClick={() => { handleUserMenuClose(); navigate('/profile'); }}>Profile</MenuItem>
+                <MenuItem onClick={() => { handleUserMenuClose(); navigate('/orders'); }}>My Orders</MenuItem>
                 <MenuItem onClick={handleUserMenuClose}>Logout</MenuItem>
               </Menu>
             </Box>
@@ -213,6 +213,12 @@ export default function Header() {
                 <PersonIcon />
               </ListItemIcon>
               <ListItemText primary="Join Now" />
+            </ListItem>
+            <ListItem button onClick={() => handleNavigation('/profile')}>
+              <ListItemIcon>
+                <PersonIcon />
+              </ListItemIcon>
+              <ListItemText primary="My Profile" />
             </ListItem>
           </List>
         </Box>
