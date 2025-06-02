@@ -2,11 +2,17 @@ import React from 'react';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { CartProvider, useCart } from './CartContext.jsx';
 import CartSummary from './CartSummary';
+import { MemoryRouter } from 'react-router-dom';
 
 // Mock the Delete icon
 jest.mock('@mui/icons-material/Delete', () => () => <span data-testid="delete-icon" />);
 
-const Wrapper = ({ children }) => <CartProvider>{children}</CartProvider>;
+// Wrap with both CartProvider and MemoryRouter
+const Wrapper = ({ children }) => (
+  <MemoryRouter>
+    <CartProvider>{children}</CartProvider>
+  </MemoryRouter>
+);
 
 const sampleProduct = {
   id: '1',

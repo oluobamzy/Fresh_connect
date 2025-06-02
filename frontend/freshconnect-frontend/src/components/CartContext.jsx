@@ -40,14 +40,24 @@ function cartReducer(state, action) {
   }
 }
 
-export function CartProvider({ children }) {
-  const [state, dispatch] = useReducer(cartReducer, initialState);
+export function CartProvider({ children, initialItems }) {
+  const initialStateWithItems = initialItems
+    ? { ...initialState, items: initialItems }
+    : initialState;
+    
+  const [state, dispatch] = useReducer(cartReducer, initialStateWithItems);
   const addToCart = (product, quantity = 1) => dispatch({ type: 'ADD_ITEM', product, quantity });
   const removeFromCart = productId => dispatch({ type: 'REMOVE_ITEM', productId });
   const clearCart = () => dispatch({ type: 'CLEAR_CART' });
 
   return (
-    <CartContext.Provider value={{ ...state, addToCart, removeFromCart, clearCart }}>
+    <CartContext.Provider value={{ 
+      ...state, 
+      cartItems: state.items, // Add cartItems for backward compatibility
+      addToCart, 
+      removeFromCart, 
+      clearCart 
+    }}>
       {children}
     </CartContext.Provider>
   );

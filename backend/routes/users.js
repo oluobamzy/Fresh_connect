@@ -10,6 +10,31 @@ router.get('/me', authenticate, async (req, res) => {
   res.json(user);
 });
 
+// Get public farmer profile by ID
+router.get('/:id', async (req, res) => {
+  try {
+    const user = await User.findByPk(req.params.id, { 
+      attributes: ['id', 'name', 'email', 'role', 'farmDetails', 'isVerified', 'createdAt'] 
+    });
+    
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    
+    // Only return farmer profiles or limit data for other roles
+    if (user.role !== 'farmer') {
+      return res.json({
+        id: user.id,
+        name: user.name,
+        role: user.role,
+      });
+    }
+    
+    res.json(user);
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    res.status(500).json({ error: 'Failed to fetch user profile' });
+  }
+});
+
 // Update current user profile
 router.patch('/me', authenticate, async (req, res) => {
   const user = await User.findByPk(req.user.id);

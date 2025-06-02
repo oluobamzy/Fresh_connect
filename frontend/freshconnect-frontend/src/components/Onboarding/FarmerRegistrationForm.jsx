@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Box, Typography, Button, Alert } from '@mui/material';
+import { Box, Typography, Button, Alert, CircularProgress } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import FormInput from '../FormInput';
-import Loader from '../Loader';
 import Notification from '../Notification';
+import { useAuth } from '../../components/Auth/AuthContext';
 
 export default function FarmerRegistrationForm() {
   const [form, setForm] = useState({ name: '', email: '', password: '', farmDetails: '' });
@@ -10,6 +11,9 @@ export default function FarmerRegistrationForm() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
   const [notification, setNotification] = useState({ open: false, message: '', severity: 'info' });
+  
+  const { register } = useAuth();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -20,42 +24,121 @@ export default function FarmerRegistrationForm() {
     setLoading(true);
     setError('');
     setSuccess(false);
+    
     try {
-      const res = await fetch('http://localhost:5000/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, role: 'farmer' })
+      // Convert farmDetails to JSON format if it's not empty
+      const farmDetailsJSON = form.farmDetails ? 
+        JSON.stringify({ description: form.farmDetails }) : '';
+      
+      const userData = { 
+        ...form, 
+        role: 'farmer',
+        farmDetails: farmDetailsJSON 
+      };
+      
+      console.log('Submitting farmer data:', userData);
+      const result = await register(userData);
+      
+      setSuccess(true);
+      setNotification({ 
+        open: true, 
+        message: 'Registration successful! Please check your email for verification.', 
+        severity: 'success' 
       });
-      const data = await res.json();
-      if (res.ok) {
-        setSuccess(true);
-        setNotification({ open: true, message: 'Registration successful! Please check your email for verification.', severity: 'success' });
-        setForm({ name: '', email: '', password: '', farmDetails: '' });
-      } else {
-        setError(data.message || 'Registration failed.');
-        setNotification({ open: true, message: data.message || 'Registration failed.', severity: 'error' });
-      }
+      setForm({ name: '', email: '', password: '', farmDetails: '' });
+      
+      // Redirect to login after 3 seconds
+      setTimeout(() => {
+        navigate('/login');
+      }, 3000);
     } catch (err) {
-      setError('Network error.');
-      setNotification({ open: true, message: 'Network error.', severity: 'error' });
+      console.error('Farmer registration error:', err);
+      setError(err.message || 'Registration failed.');
+      setNotification({ 
+        open: true, 
+        message: err.message || 'Registration failed.', 
+        severity: 'error' 
+      });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Box maxWidth={400} mx="auto" mt={4}>
-      <Typography variant="h5" mb={2}>Farmer Registration</Typography>
+    <Box maxWidth={500} mx="auto">
+      {notification.open && (
+        <Notification
+          type={notification.severity}
+          message={notification.message}
+          onClose={() => setNotification({ ...notification, open: false })}
+        />
+      )}
+
+      {error && !notification.open && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
+
+      {success && !notification.open && (
+        <Alert severity="success" sx={{ mb: 2 }}>
+          Registration successful! Please check your email for verification.
+        </Alert>
+      )}
+
       <form onSubmit={handleSubmit}>
-        <FormInput label="Name" name="name" value={form.name} onChange={handleChange} required />
-        <FormInput label="Email" name="email" value={form.email} onChange={handleChange} type="email" required />
-        <FormInput label="Password" name="password" value={form.password} onChange={handleChange} type="password" required />
-        <FormInput label="Farm Details" name="farmDetails" value={form.farmDetails} onChange={handleChange} required />
-        {loading ? <Loader /> : <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>Register</Button>}
-        {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
-        {success && <Alert severity="success" sx={{ mt: 2 }}>Registration successful! Please check your email for verification.</Alert>}
+        <FormInput 
+          label="Farm or Business Name" 
+          name="name" 
+          value={form.name} 
+          onChange={handleChange} 
+          required 
+        />
+        <FormInput 
+          label="Email Address" 
+          name="email" 
+          value={form.email} 
+          onChange={handleChange} 
+          type="email" 
+          required 
+        />
+        <FormInput 
+          label="Password" 
+          name="password" 
+          value={form.password} 
+          onChange={handleChange} 
+          type="password" 
+          required 
+          helperText="Password must be at least 8 characters"
+        />
+        <FormInput 
+          label="Farm Details" 
+          name="farmDetails" 
+          value={form.farmDetails} 
+          onChange={handleChange} 
+          multiline 
+          rows={4}
+          required
+          helperText="Please describe your farm, products, and farming practices"
+        />
+        
+        <Button 
+          type="submit" 
+          variant="contained" 
+          color="primary" 
+          size="large"
+          fullWidth
+          disabled={loading}
+          sx={{ mt: 3, fontWeight: 600, py: 1.2, fontFamily: 'Montserrat' }}
+        >
+          {loading ? <CircularProgress size={24} /> : 'Apply as Farmer'}
+        </Button>
+        
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 2, textAlign: 'center' }}>
+          Farmer accounts require verification before activation.
+          We'll review your application and notify you by email.
+        </Typography>
       </form>
-      <Notification open={notification.open} message={notification.message} severity={notification.severity} onClose={() => setNotification({ ...notification, open: false })} />
     </Box>
   );
 }

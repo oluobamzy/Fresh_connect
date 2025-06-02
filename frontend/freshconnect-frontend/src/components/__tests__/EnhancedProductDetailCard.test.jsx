@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import ProductDetailCard from '../ProductDetailCard';
+import EnhancedProductDetailCard from '../EnhancedProductDetailCard';
 import { CartProvider } from '../CartContext';
 
 // Mock Loader and Notification
@@ -11,7 +11,7 @@ jest.mock('../Notification', () => ({ type, message, onClose }) => (
   <div data-testid="notification">{message}</div>
 ));
 
-describe('Enhanced ProductDetailCard', () => {
+describe('EnhancedProductDetailCard', () => {
   const product = {
     id: '1',
     name: 'Fresh Apples',
@@ -57,7 +57,7 @@ describe('Enhanced ProductDetailCard', () => {
   });
 
   it('navigates through product images', async () => {
-    renderWithProviders(<ProductDetailCard productId="1" />);
+    renderWithProviders(<EnhancedProductDetailCard productId="1" />);
     await waitFor(() => expect(screen.getByRole('img')).toBeInTheDocument());
 
     // Initial state: first image
@@ -77,7 +77,7 @@ describe('Enhanced ProductDetailCard', () => {
   });
 
   it('displays reviews section', async () => {
-    renderWithProviders(<ProductDetailCard productId="1" />);
+    renderWithProviders(<EnhancedProductDetailCard productId="1" />);
     await waitFor(() => expect(screen.getByText(/reviews/i)).toBeInTheDocument());
 
     expect(screen.getByText('Great apples!')).toBeInTheDocument();
@@ -86,7 +86,7 @@ describe('Enhanced ProductDetailCard', () => {
   });
 
   it('shows quantity selector when adding to cart', async () => {
-    renderWithProviders(<ProductDetailCard productId="1" />);
+    renderWithProviders(<EnhancedProductDetailCard productId="1" />);
     await waitFor(() => expect(screen.getByTestId('quantity-selector')).toBeInTheDocument());
 
     // Increase quantity
@@ -108,7 +108,7 @@ describe('Enhanced ProductDetailCard', () => {
     const mockShare = jest.fn();
     global.navigator.share = mockShare;
 
-    renderWithProviders(<ProductDetailCard productId="1" />);
+    renderWithProviders(<EnhancedProductDetailCard productId="1" />);
     await waitFor(() => expect(screen.getByTestId('share-button')).toBeInTheDocument());
 
     fireEvent.click(screen.getByTestId('share-button'));
@@ -120,7 +120,7 @@ describe('Enhanced ProductDetailCard', () => {
   });
 
   it('saves product to favorites', async () => {
-    renderWithProviders(<ProductDetailCard productId="1" />);
+    renderWithProviders(<EnhancedProductDetailCard productId="1" />);
     await waitFor(() => expect(screen.getByTestId('favorite-button')).toBeInTheDocument());
 
     // Initial state: not favorited

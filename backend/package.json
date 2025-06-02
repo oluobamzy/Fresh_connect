@@ -6,7 +6,10 @@
   "scripts": {
     "test": "jest --runInBand --detectOpenHandles --forceExit",
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "sync-db": "node scripts/syncDb.js",
+    "seed-db": "node seeders/index.js",
+    "reset-db": "node scripts/syncDb.js && node seeders/index.js"
   },
   "keywords": [],
   "author": "",

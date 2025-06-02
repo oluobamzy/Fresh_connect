@@ -17,30 +17,58 @@ import CheckoutPage from './components/Checkout/CheckoutPage';
 import OrderConfirmation from './components/Orders/OrderConfirmation';
 import { CartProvider } from './components/CartContext.jsx';
 import ProductPage from './pages/ProductPage';
+import { AuthProvider } from './components/Auth/AuthContext';
+import Login from './components/Auth/Login';
+import Unauthorized from './components/Auth/Unauthorized';
+import ProtectedRoute from './components/Auth/ProtectedRoute';
+import Registration from './components/Onboarding/Registration';
 
 function App() {
   return (
-    <CartProvider>
-      <Router>
-        <Header />
-        <Container sx={{ mt: 4, pb: 8 }}>
-          <Routes>
-            <Route path="/" element={<Home />} />
+    <AuthProvider>
+      <CartProvider>
+        <Router>
+          <Header />
+          <Container sx={{ mt: 4, pb: 8 }}>
+            <Routes>            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/unauthorized" element={<Unauthorized />} />
             <Route path="/marketplace" element={<Marketplace />} />
             <Route path="/products/:productId" element={<ProductPage />} />
-            <Route path="/onboarding" element={<Onboarding />} />
-            <Route path="/orders/*" element={<Orders />} />
-            <Route path="/orders/confirmation/:orderId" element={<OrderConfirmation />} />
-            <Route path="/profile/*" element={<Profile />} />
-            <Route path="/forum/*" element={<Forum />} />
-            <Route path="/recipes" element={<Recipes />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/checkout" element={<CheckoutPage />} />
-          </Routes>
-        </Container>
-        <Footer />
-      </Router>
-    </CartProvider>
+            <Route path="/onboarding" element={<Registration />} />
+              <Route path="/orders/*" element={
+                <ProtectedRoute>
+                  <Orders />
+                </ProtectedRoute>
+              } />
+              <Route path="/orders/confirmation/:orderId" element={
+                <ProtectedRoute>
+                  <OrderConfirmation />
+                </ProtectedRoute>
+              } />
+              <Route path="/profile/*" element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              } />
+              <Route path="/forum/*" element={<Forum />} />
+              <Route path="/recipes" element={<Recipes />} />
+              <Route path="/admin" element={
+                <ProtectedRoute roles={['admin']}>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/checkout" element={
+                <ProtectedRoute>
+                  <CheckoutPage />
+                </ProtectedRoute>
+              } />
+            </Routes>
+          </Container>
+          <Footer />
+        </Router>
+      </CartProvider>
+    </AuthProvider>
   );
 }
 

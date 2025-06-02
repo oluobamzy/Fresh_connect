@@ -16,7 +16,9 @@ import {
   ListItemText, 
   ListItemIcon, 
   useMediaQuery, 
-  useTheme 
+  useTheme,
+  Divider,
+  Badge
 } from '@mui/material';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -28,6 +30,10 @@ import ForumIcon from '@mui/icons-material/Forum';
 import RestaurantIcon from '@mui/icons-material/Restaurant';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import HomeIcon from '@mui/icons-material/Home';
+import LoginIcon from '@mui/icons-material/Login';
+import LogoutIcon from '@mui/icons-material/Logout';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import { useAuth } from './Auth/AuthContext';
 
 export default function Header() {
   const theme = useTheme();
@@ -36,15 +42,30 @@ export default function Header() {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuAnchor, setUserMenuAnchor] = useState(null);
+  const { currentUser, logout, isAuthenticated } = useAuth();
   
   const menuItems = [
     { text: 'Home', icon: <HomeIcon />, path: '/' },
-    { text: 'Marketplace', icon: <StorefrontIcon />, path: '/marketplace' },
-    { text: 'Orders', icon: <InventoryIcon />, path: '/orders' },
-    { text: 'Forum', icon: <ForumIcon />, path: '/forum' },
-    { text: 'Recipes', icon: <RestaurantIcon />, path: '/recipes' },
-    { text: 'Admin', icon: <AdminPanelSettingsIcon />, path: '/admin' }
+    { text: 'Marketplace', icon: <StorefrontIcon />, path: '/marketplace' }
   ];
+  
+  // Add authenticated routes
+  if (isAuthenticated) {
+    menuItems.push(
+      { text: 'Orders', icon: <InventoryIcon />, path: '/orders' }
+    );
+  }
+  
+  // Add common routes
+  menuItems.push(
+    { text: 'Forum', icon: <ForumIcon />, path: '/forum' },
+    { text: 'Recipes', icon: <RestaurantIcon />, path: '/recipes' }
+  );
+  
+  // Only show admin link for admin users
+  if (currentUser?.role === 'admin') {
+    menuItems.push({ text: 'Admin', icon: <AdminPanelSettingsIcon />, path: '/admin' });
+  }
   
   const handleUserMenuOpen = (event) => {
     setUserMenuAnchor(event.currentTarget);
@@ -61,6 +82,12 @@ export default function Header() {
   const handleNavigation = (path) => {
     navigate(path);
     setMobileMenuOpen(false);
+  };
+
+  const handleLogout = () => {
+    logout();
+    handleUserMenuClose();
+    navigate('/');
   };
 
   return (
@@ -103,35 +130,50 @@ export default function Header() {
                 </Button>
               ))}
               
-              <Button 
-                color="inherit" 
-                component={Link} 
-                to="/onboarding"
-                variant="outlined"
-                sx={{ 
-                  ml: 2,
-                  borderColor: 'white',
-                  '&:hover': {
-                    backgroundColor: 'rgba(255,255,255,0.1)'
-                  }
-                }}
-              >
-                Join Now
-              </Button>
+              {!isAuthenticated && (
+                <>
+                  <Button 
+                    color="inherit"
+                    onClick={() => navigate('/login')}
+                    sx={{ ml: 2 }}
+                  >
+                    Login
+                  </Button>
+                  
+                  <Button 
+                    color="inherit" 
+                    component={Link} 
+                    to="/onboarding"
+                    variant="outlined"
+                    sx={{ 
+                      ml: 1,
+                      borderColor: 'white',
+                      '&:hover': {
+                        backgroundColor: 'rgba(255,255,255,0.1)'
+                      }
+                    }}
+                  >
+                    Join Now
+                  </Button>
+                </>
+              )}
               
-              <IconButton color="inherit" sx={{ ml: 1 }}>
+              <IconButton color="inherit" sx={{ ml: 1 }} onClick={() => navigate('/checkout')}>
                 <ShoppingBasketIcon />
               </IconButton>
               
-              <IconButton 
-                color="inherit" 
-                sx={{ ml: 1 }}
-                onClick={handleUserMenuOpen}
-              >
-                <Avatar sx={{ width: 32, height: 32, bgcolor: 'secondary.main' }}>
-                  <PersonIcon fontSize="small" />
-                </Avatar>
-              </IconButton>
+              {isAuthenticated && (
+                <IconButton 
+                  color="inherit" 
+                  sx={{ ml: 1 }}
+                  onClick={handleUserMenuOpen}
+                >
+                  <Avatar sx={{ width: 32, height: 32, bgcolor: 'secondary.main' }}>
+                    {currentUser?.name?.[0] || <PersonIcon fontSize="small" />}
+                  </Avatar>
+                </IconButton>
+              )}
+              
               <Menu
                 anchorEl={userMenuAnchor}
                 open={Boolean(userMenuAnchor)}
@@ -145,9 +187,25 @@ export default function Header() {
                   horizontal: 'right',
                 }}
               >
-                <MenuItem onClick={() => { handleUserMenuClose(); navigate('/profile'); }}>Profile</MenuItem>
-                <MenuItem onClick={() => { handleUserMenuClose(); navigate('/orders'); }}>My Orders</MenuItem>
-                <MenuItem onClick={handleUserMenuClose}>Logout</MenuItem>
+                <MenuItem onClick={() => { handleUserMenuClose(); navigate('/profile'); }}>
+                  <ListItemIcon>
+                    <AccountCircleIcon fontSize="small" />
+                  </ListItemIcon>
+                  Profile
+                </MenuItem>
+                <MenuItem onClick={() => { handleUserMenuClose(); navigate('/orders'); }}>
+                  <ListItemIcon>
+                    <InventoryIcon fontSize="small" />
+                  </ListItemIcon>
+                  My Orders
+                </MenuItem>
+                <Divider />
+                <MenuItem onClick={handleLogout}>
+                  <ListItemIcon>
+                    <LogoutIcon fontSize="small" />
+                  </ListItemIcon>
+                  Logout
+                </MenuItem>
               </Menu>
             </Box>
           )}
@@ -155,7 +213,7 @@ export default function Header() {
           {/* Mobile Menu Icon */}
           {isMobile && (
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <IconButton color="inherit">
+              <IconButton color="inherit" onClick={() => navigate('/checkout')}>
                 <ShoppingBasketIcon />
               </IconButton>
               <IconButton color="inherit" onClick={handleMobileMenuToggle}>
@@ -178,10 +236,10 @@ export default function Header() {
         >
           <Box sx={{ p: 2, display: 'flex', alignItems: 'center', borderBottom: 1, borderColor: 'divider' }}>
             <Avatar sx={{ mr: 2, bgcolor: 'secondary.main' }}>
-              <PersonIcon />
+              {currentUser?.name?.[0] || <PersonIcon />}
             </Avatar>
             <Typography variant="subtitle1">
-              Hello, User
+              Hello, {currentUser ? currentUser.name : 'Guest'}
             </Typography>
           </Box>
           <List>
@@ -208,18 +266,38 @@ export default function Header() {
                 />
               </ListItem>
             ))}
-            <ListItem button onClick={() => handleNavigation('/onboarding')}>
-              <ListItemIcon>
-                <PersonIcon />
-              </ListItemIcon>
-              <ListItemText primary="Join Now" />
-            </ListItem>
-            <ListItem button onClick={() => handleNavigation('/profile')}>
-              <ListItemIcon>
-                <PersonIcon />
-              </ListItemIcon>
-              <ListItemText primary="My Profile" />
-            </ListItem>
+            <Divider sx={{ my: 1 }} />
+            {!isAuthenticated ? (
+              <>
+                <ListItem button onClick={() => handleNavigation('/login')}>
+                  <ListItemIcon>
+                    <LoginIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Login" />
+                </ListItem>
+                <ListItem button onClick={() => handleNavigation('/onboarding')}>
+                  <ListItemIcon>
+                    <PersonIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Sign Up" />
+                </ListItem>
+              </>
+            ) : (
+              <>
+                <ListItem button onClick={() => handleNavigation('/profile')}>
+                  <ListItemIcon>
+                    <AccountCircleIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Profile" />
+                </ListItem>
+                <ListItem button onClick={handleLogout}>
+                  <ListItemIcon>
+                    <LogoutIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Logout" />
+                </ListItem>
+              </>
+            )}
           </List>
         </Box>
       </Drawer>

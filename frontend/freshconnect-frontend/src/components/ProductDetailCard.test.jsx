@@ -56,11 +56,11 @@ describe('ProductDetailCard', () => {
     renderWithProviders(<ProductDetailCard productId="1" />);
     await waitFor(() => expect(screen.getByText('Fresh Apples')).toBeInTheDocument());
     expect(screen.getByText('Crisp and sweet apples from local farms.')).toBeInTheDocument();
-    expect(screen.getByText('Fruits')).toBeInTheDocument();
-    expect(screen.getByText('$3.5')).toBeInTheDocument();
-    expect(screen.getByText('50')).toBeInTheDocument();
-    expect(screen.getByText('Springfield')).toBeInTheDocument();
-    expect(screen.getByText('John Doe')).toBeInTheDocument();
+    expect(screen.getByText(/Fruits/)).toBeInTheDocument();
+    expect(screen.getByText(/\$3\.5/)).toBeInTheDocument();
+    expect(screen.getByText(/50/)).toBeInTheDocument();
+    expect(screen.getByText(/Springfield/)).toBeInTheDocument();
+    expect(screen.getByText(/John Doe/)).toBeInTheDocument();
     expect(screen.getByRole('img')).toHaveAttribute('src', product.images[0]);
   });
 

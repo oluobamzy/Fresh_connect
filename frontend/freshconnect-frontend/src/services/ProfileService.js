@@ -1,3 +1,5 @@
+import AuthService from './AuthService';
+
 /**
  * Service for handling user profile-related API calls
  */
@@ -8,14 +10,23 @@ class ProfileService {
    */
   async getProfile() {
     try {
+      const token = AuthService.getToken();
+      if (!token) {
+        throw new Error('Not authenticated');
+      }
+
       const response = await fetch('/api/users/me', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.getToken()}`
+          'Authorization': `Bearer ${token}`
         }
       });
       
+      if (response.status === 401) {
+        throw new Error('Authentication expired');
+      }
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to fetch profile');
@@ -35,15 +46,24 @@ class ProfileService {
    */
   async updateProfile(profileData) {
     try {
+      const token = AuthService.getToken();
+      if (!token) {
+        throw new Error('Not authenticated');
+      }
+
       const response = await fetch('/api/users/me', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.getToken()}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(profileData)
       });
       
+      if (response.status === 401) {
+        throw new Error('Authentication expired');
+      }
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to update profile');
@@ -63,15 +83,24 @@ class ProfileService {
    */
   async updatePassword(passwordData) {
     try {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        throw new Error('Not authenticated');
+      }
+
       const response = await fetch('/api/users/me/password', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.getToken()}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(passwordData)
       });
       
+      if (response.status === 401) {
+        throw new Error('Authentication expired');
+      }
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to update password');
@@ -82,16 +111,6 @@ class ProfileService {
       console.error('ProfileService.updatePassword error:', error);
       throw error;
     }
-  }
-
-  /**
-   * Get auth token from local storage
-   * @returns {string} Auth token
-   * @private
-   */
-  getToken() {
-    // In a real app, this would get the token from localStorage or a state management solution
-    return localStorage.getItem('token') || '';
   }
 }
 

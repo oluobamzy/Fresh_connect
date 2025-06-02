@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { Box, Tabs, Tab, Typography, Paper, Alert } from '@mui/material';
 import ProfileDetails from './Profile/ProfileDetails';
 import ProfileEdit from './Profile/ProfileEdit';
 import Loader from './Loader';
 import ProfileService from '../services/ProfileService';
+import { useAuth } from './Auth/AuthContext';
 
 /**
  * Container component for Profile Management
@@ -16,11 +17,17 @@ const ProfileContainer = () => {
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('details');
   const navigate = useNavigate();
+  const location = useLocation();
+  const { currentUser, isAuthenticated } = useAuth();
 
   // Fetch user profile data on component mount
   useEffect(() => {
-    fetchUserProfile();
-  }, []);
+    if (isAuthenticated) {
+      fetchUserProfile();
+    } else {
+      navigate('/login', { state: { from: location.pathname } });
+    }
+  }, [isAuthenticated]);
 
   // Fetch user profile from API
   const fetchUserProfile = async () => {
@@ -31,7 +38,11 @@ const ProfileContainer = () => {
       setUserProfile(profileData);
     } catch (err) {
       console.error('Failed to load profile:', err);
-      setError('Failed to load profile data. Please try again later.');
+      if (err.message === 'Not authenticated' || err.message === 'Authentication expired') {
+        navigate('/login', { state: { from: location.pathname } });
+      } else {
+        setError('Failed to load profile data. Please try again later.');
+      }
     } finally {
       setLoading(false);
     }

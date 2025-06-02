@@ -73,9 +73,9 @@ describe('CheckoutPage', () => {
     price: 3.5,
   };
 
-  const renderWithProviders = (ui) => {
+  const renderWithProviders = (ui, { initialItems = [] } = {}) => {
     return render(
-      <CartProvider>
+      <CartProvider initialItems={initialItems}>
         <MemoryRouter>
           {ui}
         </MemoryRouter>
@@ -97,11 +97,8 @@ describe('CheckoutPage', () => {
   it('shows the stepper with three steps', () => {
     // Add item to cart first so it doesn't redirect
     const { getByText } = renderWithProviders(
-      <CartProvider initialItems={[{ product: sampleProduct, quantity: 1 }]}>
-        <MemoryRouter>
-          <CheckoutPage />
-        </MemoryRouter>
-      </CartProvider>
+      <CheckoutPage />,
+      { initialItems: [{ product: sampleProduct, quantity: 1 }] }
     );
     
     expect(getByText('Delivery Address')).toBeInTheDocument();
@@ -111,11 +108,8 @@ describe('CheckoutPage', () => {
 
   it('progresses through checkout steps', async () => {
     const { getByText, getByTestId } = renderWithProviders(
-      <CartProvider initialItems={[{ product: sampleProduct, quantity: 1 }]}>
-        <MemoryRouter>
-          <CheckoutPage />
-        </MemoryRouter>
-      </CartProvider>
+      <CheckoutPage />,
+      { initialItems: [{ product: sampleProduct, quantity: 1 }] }
     );
     
     // Step 1: Delivery Address
@@ -139,11 +133,8 @@ describe('CheckoutPage', () => {
 
   it('places an order and redirects to confirmation page', async () => {
     const { getByText, getByTestId } = renderWithProviders(
-      <CartProvider initialItems={[{ product: sampleProduct, quantity: 1 }]}>
-        <MemoryRouter>
-          <CheckoutPage />
-        </MemoryRouter>
-      </CartProvider>
+      <CheckoutPage />,
+      { initialItems: [{ product: sampleProduct, quantity: 1 }] }
     );
     
     // Fill the delivery form and go to next step

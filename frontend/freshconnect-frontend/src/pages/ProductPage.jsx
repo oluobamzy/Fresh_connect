@@ -38,11 +38,19 @@ const ProductPage = () => {
         const productData = await productRes.json();
         setProduct(productData);
 
-        // Fetch farmer details
-        const farmerRes = await fetch(`/api/users/${productData.farmerId}`);
-        if (!farmerRes.ok) throw new Error('Failed to fetch farmer details');
-        const farmerData = await farmerRes.json();
-        setFarmer(farmerData);
+        // Fetch farmer details if farmerId exists
+        if (productData.farmerId) {
+          try {
+            const farmerRes = await fetch(`/api/users/${productData.farmerId}`);
+            if (!farmerRes.ok) throw new Error(`Failed to fetch farmer details (status: ${farmerRes.status})`);
+            const farmerData = await farmerRes.json();
+            setFarmer(farmerData);
+          } catch (farmerErr) {
+            console.error('Error fetching farmer details:', farmerErr);
+            // Don't fail the whole product page just because farmer details failed
+            // Just set farmer to null and continue
+          }
+        }
 
         // Fetch related products
         const relatedRes = await fetch(`/api/products?category=${productData.category}&limit=4&exclude=${productId}`);
